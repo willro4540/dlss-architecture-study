@@ -3,6 +3,7 @@
 | 날짜 | 무엇을 했는가 | 방법 | 다음 할 일 |
 |---|---|---|---|
 | 2026-09-04 | 저장소 신설. DLSS5가 실존 기술인지부터 검증(2026-03-16 발표, 2026-09-03 정식 출시, RTX 50 전용 확인). 공식 `github.com/NVIDIA/DLSS`를 `_source/`에 클론(커밋 `a291cc7`, 1.5GB라 `.gitignore` 처리)해 SDK가 헤더+사전컴파일 DLL뿐임을 실측, `nvsdk_ngx_defs.h`의 `NVSDK_NGX_Feature` enum(0~18)에 DLSS5용 항목이 없음을 grep으로 직접 확인(등급 a). NVIDIA 리서치 페이지(`research.nvidia.com/labs/adlr/DLSS5/`)로 3D-Guided Neural Rendering 아키텍처(single-stage pixel-space diffusion) 확인. 사용자가 세션 중간에 던진 "강제 인식" 질문을 계기로 NVIDIA App 공식 오버라이드(`ApplicationStorage.json`+`fingerprint.db`)와 서드파티 DLL 인젝션(1-Click-DLSS5, OptiScaler, ReShade addon) 두 레이어를 분리 분석. `streamline-architecture-study`/`nvidia-ace-architecture-study`와 교차검증해 "핵심 IP는 닫고 배관만 연다" 패턴의 극단형(배관조차 미공개)임을 확인. docs/01~06, README, study_procedure.md 작성. | 공식 SDK 헤더 직접 grep 실측 + NVIDIA 리서치 페이지/뉴스 인용 + 서드파티 도구 README 자기소개 인용(등급 c~d로 명시 하향, 참고 원칙: [[feedback_reference_not_reuse]]) | `DLSS5_Report.pdf`(10MB 초과로 자동 도구로 미독) 로컬 다운로드 후 페이지 단위 직접 재검증(diffusion step 수, loss function, 학습 데이터셋 확인), `NVIDIA/DLSS` 리포 최신 커밋 재확인해서 DLSS5 API 반영 여부 갱신, `ApplicationStorage.json` 실제 파일 로컬 확인 |
+| 2026-09-04 | `DLSS5_Report.pdf` 페이지별 재검증(적대적 재검증 패스, [[reference_research_verification_skill]]). PDF가 293MB/24페이지라 Read 도구 100MB 제한에 걸려 `pypdf`로 텍스트를 24페이지 전부 추출해 처음부터 끝까지 직접 대조, `research.nvidia.com/labs/adlr/DLSS5/` 웹페이지도 WebFetch로 재조회해 PDF와 교차확인. **실질 오류 2건 확정**: (1) docs/03의 "G-buffer(albedo/normal/depth/roughness/metalness)가 조건화 입력"이라는 서술 — 실제로는 추론 입력이 RGB 프레임+모션벡터+시간상태+아트디렉션뿐이고 albedo/normal/lighting은 학습 때만 쓰는 supervision 신호(원문 "not inputs to the shipped model" 명시), depth/roughness/metalness는 원문에 아예 없음. (2) "3D-Guided가 오해받기 쉽다는 걸 NVIDIA가 원문에서 명시적으로 부정한다"는 서술 — PDF·웹페이지 어디에도 그런 문구 없음, 저장소 자체 해석으로 등급 하향. 그 외 diffusion step 수(1, one-step으로 확정), 파라미터 수(154M), VRAM(731MB), 레이턴시(8ms/4K) 등 이전엔 미확인·미공개였던 항목을 리포트에서 직접 확인해 갱신. docs/01, docs/03, README.md 정정, `verification_log.md` 신설(표로 근거 기록), `_scratch/dlss5_pages_all.txt`(재현용 텍스트 발췌) 커밋 대상 추가, 293MB 원본 PDF는 `.gitignore`로 제외. | PDF 텍스트 전체 추출 후 직접 대조 + WebFetch로 1차 웹 출처 재조회(등급 (a)로 표기됐던 항목도 의심하고 재확인, 참고 원칙: [[reference_research_verification_skill]]) | `NVIDIA/DLSS` 리포 최신 커밋 재확인해서 DLSS5 API 반영 여부 갱신, `ApplicationStorage.json` 실제 파일 로컬 확인 — 이 두 항목은 이번 패스 범위 밖(PDF 재검증만 수행) |
 
 ## 용어 사전 (새 용어 나올 때마다 추가)
 
@@ -20,11 +21,12 @@
 
 - **지금까지 확인된 것**: README.md, docs/01~06, study_procedure.md, .gitignore 작성 완료.
   `_source/`는 로컬에만 존재(1.5GB, 미커밋). git init만 완료, 첫 커밋은 아직 안 함.
+  이후 `DLSS5_Report.pdf` 24페이지 전체 재검증 완료(`verification_log.md`), docs/01·03·
+  README.md 오류 정정 완료.
 - **아직 미완성인 것**: git add/commit — 이 시리즈는 관례상 사용자가 직접 커밋
   ([[feedback_user_does_own_commits]] 원칙은 v2 프로젝트 한정이지만, 이 스터디도
   Claude가 대신 commit/push하지 않고 명령만 제공하는 편이 일관적).
-- **다음에 이어서 할 구체적 단계**: (1) `DLSS5_Report.pdf` 로컬 다운로드 후 직접 재검증,
-  (2) `NVIDIA/DLSS` 리포 재클론으로 DLSS5 헤더 반영 여부 갱신, (3) NVIDIA App을 실제
-  설치해 `ApplicationStorage.json` 실물 구조 확인(로컬에 RTX GPU 없으면 스킵 가능,
-  [[reference_user_machines]] 참고 — 사용자 두 컴퓨터 다 내장그래픽이라 이 항목은
-  우선순위 낮음).
+- **다음에 이어서 할 구체적 단계**: (1) `NVIDIA/DLSS` 리포 재클론으로 DLSS5 헤더 반영
+  여부 갱신, (2) NVIDIA App을 실제 설치해 `ApplicationStorage.json` 실물 구조 확인
+  (로컬에 RTX GPU 없으면 스킵 가능, [[reference_user_machines]] 참고 — 사용자 두
+  컴퓨터 다 내장그래픽이라 이 항목은 우선순위 낮음).

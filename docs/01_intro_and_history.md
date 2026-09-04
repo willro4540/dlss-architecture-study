@@ -8,9 +8,17 @@ DLSS 1~4는 전부 "정보가 부족한 상태(저해상도 프레임, 또는 �
 프레임 보간), 레이 리컨스트럭션(디노이징)까지 전부 "이미 있어야 할 정답에 가까운 값을
 추정"하는 문제였습니다.
 
-DLSS5는 다릅니다. NVIDIA 리서치 페이지(`research.nvidia.com/labs/adlr/DLSS5/`) 인용:
-"the first DLSS technology that generates final display appearance, rather than
-reconstructing an expensive reference result of a legacy renderer"(등급 a, 직접 인용).
+DLSS5는 다릅니다. NVIDIA 원문 정확한 인용(등급 a — 원본 PDF `DLSS5_Report.pdf` p.2 및
+`research.nvidia.com/labs/adlr/DLSS5/` 웹페이지 양쪽에서 동일 문구로 2026-09-04 직접
+재대조 완료): **"DLSS 5 is the first DLSS technology to generate the final displayed
+appearance rather than reconstruct a higher-cost reference output from the conventional
+renderer."**
+> 재검증 메모: 이전 버전 문서는 이 문장을 "the first DLSS technology that generates
+> final display appearance, rather than reconstructing an expensive reference result of
+> a legacy renderer"로 인용하며 "직접 인용"이라 표기했으나, 실제 원문과 단어 선택이
+> 달라 verbatim 인용이 아니었습니다(의미는 동일). 이번 재검증에서 정확한 원문으로
+> 교체했습니다.
+
 즉 "정답에 가까운 값 추정"이 아니라 **렌더러가 이미 그린 프레임의 조명·재질 외형을
 생성형 AI가 다시 그림** — 카테고리 자체가 재구성(discriminative/regression)에서
 생성(generative)으로 바뀐 것입니다.
@@ -34,9 +42,19 @@ Core를 타겟"이라고만 설명할 뿐 왜 40시리즈가 안 되는지 구�
 
 ## 4. 열린 질문
 
-- DLSS5의 실제 파라미터 수, VRAM 사용량, 프레임당 레이턴시 오버헤드는 **NVIDIA가 공개
-  안 함**(back2gaming 리뷰에서 명시적으로 "unpublished" 확인, 등급 b). 벤치마크 매체의
-  자체 실측이 나오면 갱신 필요.
-- `research.nvidia.com/labs/adlr/files/DLSS5_Report.pdf`(기술 리포트)는 파일 크기가
-  10MB를 넘어 이번 세션에서 자동 도구로 전체를 읽지 못했습니다 — 로컬 다운로드 후
-  페이지 단위로 직접 읽는 재검증이 필요합니다(다음 세션 TODO, `study_procedure.md` 참고).
+**2026-09-04 재검증으로 해소된 항목** (등급 (a) — 원본 PDF `DLSS5_Report.pdf` 24페이지
+전체 텍스트 직접 재검증, `_scratch/DLSS5_Report.pdf` p.7 Sec 2.6 / p.17 Sec 4.3.3):
+- 파라미터 수: 약 1억 5,400만(154M) 파라미터 트랜스포머 백본 (p.7).
+- VRAM 사용량: 731MB 피크 GPU 메모리 (RTX 5090, 3840×2160 기준, p.17).
+- 프레임당 레이턴시: 약 8ms/프레임 (RTX 5090, 4K 기준, p.17).
+- 이전 문서는 이 세 항목을 "NVIDIA 미공개"(back2gaming 인용, 등급 b)로 남겨뒀으나, 이
+  기술 리포트(2026-09-01자)가 정식 출시(2026-09-03) 직전에 공개한 것으로 확인되어
+  더 이상 미공개가 아닙니다. 상세는 `docs/03` 참고.
+
+**여전히 미확인인 항목**:
+- RTX 40 이하가 안 되는 구체적 아키텍처 사유(단순 "Blackwell GPU + TMA 명령어 최적화"
+  라는 구현 선택 외에, 40시리즈가 원천적으로 불가능한 이유)는 리포트에도 명시 안 됨(등급 c).
+- 정확한 손실 함수(loss function) 수식과 학습 데이터셋 구성(출처, 규모, 라이선스)은
+  24페이지 전체를 재확인해도 리포트에 공개되지 않음(등급 d, `docs/03` §3 참고) — 이
+  리포트가 유일한 1차 기술 문서이므로, 추가 공개 문서가 나오지 않는 한 이 항목은
+  열린 질문으로 남습니다.

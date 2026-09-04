@@ -68,19 +68,24 @@ DLSS5는 2026-03-16 최초 발표, 2026-09-03 정식 출시된 최신 기술로,
 ```mermaid
 flowchart TB
     subgraph ENGINE["게임 엔진 렌더러"]
-        GBUF["G-buffer\n(albedo/normal/depth/roughness/metalness)"]
-        MV["모션 벡터 + 시간적 상태"]
+        RGB["렌더링된 RGB 프레임"]
+        MV["모션 벡터 + 시간적 상태 + 아트디렉션"]
     end
 
-    GBUF --> NGX["NGX 런타임\n(NVSDK_NGX_Feature_*, 폐쇄 추론)"]
+    RGB --> NGX["NGX 런타임\n(NVSDK_NGX_Feature_*, 폐쇄 추론)"]
     MV --> NGX
 
     NGX -->|"기존 4개 공개 API 슬롯"| SS["SuperSampling(1)\nFrameGeneration(11)\nRayReconstruction(13) 등"]
-    NGX -.->|"DLSS5 API — 공개 SDK 헤더에\n아직 미반영(실측, 2026-06-23 기준)"| NR["3D-Guided Neural Rendering\n(Pixel-space diffusion, 등급 a)"]
+    NGX -.->|"DLSS5 API — 공개 SDK 헤더에\n아직 미반영(실측, 2026-06-23 기준)"| NR["3D-Guided Neural Rendering\n(One-step pixel-space diffusion, ~154M params, 등급 a)"]
 
     NR -->|"공식 경로: NVIDIA 화이트리스트"| APPSTORE["ApplicationStorage.json\n(NVIDIA App 공식 오버라이드)"]
     NR -.->|"비공식 경로: DLL 프록시 인젝션"| INJECT["Streamline interposer /\nOptiScaler / ReShade addon"]
 ```
+
+> 2026-09-04 재검증: G-buffer(albedo/normal/depth/roughness/metalness) 전체가 추론
+> 입력이라는 이전 다이어그램은 틀렸습니다. 실제 추론 입력은 RGB 프레임 + 모션벡터 +
+> 시간적 상태 + 아트디렉션뿐이고, albedo/normal/lighting은 **학습 때만** 쓰는 감독
+> 신호입니다(depth/roughness/metalness는 원문에 근거 없음). 상세는 `docs/03` §2 참고.
 
 ## 핵심 결론
 

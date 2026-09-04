@@ -8,3 +8,9 @@ _source/
 
 scratch/
 *.tmp
+
+# 293MB 원본 PDF(NVIDIA 기술 리포트) — 재검증용 텍스트 발췌(dlss5_pages_all.txt)만
+# 커밋하고 원본 바이너리는 저장소에 넣지 않음. 재현하려면 verification_log.md의
+# 재검증 절차대로 원본 URL에서 다시 받으면 됨.
+_scratch/DLSS5_Report.pdf
+_scratch/curl.log
