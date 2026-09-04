@@ -23,9 +23,10 @@
   `_source/`는 로컬에만 존재(1.5GB, 미커밋). git init만 완료, 첫 커밋은 아직 안 함.
   이후 `DLSS5_Report.pdf` 24페이지 전체 재검증 완료(`verification_log.md`), docs/01·03·
   README.md 오류 정정 완료.
-- **아직 미완성인 것**: git add/commit — 이 시리즈는 관례상 사용자가 직접 커밋
-  ([[feedback_user_does_own_commits]] 원칙은 v2 프로젝트 한정이지만, 이 스터디도
-  Claude가 대신 commit/push하지 않고 명령만 제공하는 편이 일관적).
+- **git add/commit/push**: 2026-09-04부터 Claude가 직접 실행(사용자 확인, "신설했지 그러면
+  이후에는 자동으로 해도됨") — [[feedback_user_does_own_commits]]의 "사용자 본인이 직접
+  커밋" 예외는 `safety-report-system-v2` 프로젝트 한정이고, 이 스터디는 해당 안 됨(기본값
+  유지). 첫 재검증 커밋은 `fca8eb7`(2026-09-04, push 완료).
 - **다음에 이어서 할 구체적 단계**: (1) `NVIDIA/DLSS` 리포 재클론으로 DLSS5 헤더 반영
   여부 갱신, (2) NVIDIA App을 실제 설치해 `ApplicationStorage.json` 실물 구조 확인
   (로컬에 RTX GPU 없으면 스킵 가능, [[reference_user_machines]] 참고 — 사용자 두
