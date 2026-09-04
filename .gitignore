@@ -1,0 +1,10 @@
+.vs/
+.vscode/
+*.user
+
+# 원본 클론(1.5GB, .git 히스토리+PDF+DLL 포함) — 재현용으로 커밋 해시만 문서에 남기고
+# 저장소 자체는 커밋하지 않음. 재현하려면 README의 clone 명령 참고.
+_source/
+
+scratch/
+*.tmp
